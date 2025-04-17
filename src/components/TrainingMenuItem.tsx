@@ -15,7 +15,7 @@ export const TrainingMenuItem = forwardRef<
 >(({ item, isActive, onComplete }, ref) => {
   const { t } = useLanguage();
   const [isCompleted, setIsCompleted] = useState(false);
-  const { seconds, isRunning, start, pause, reset, formatTime } = useTimer({
+  const { isRunning, start, pause, formatTime } = useTimer({
     initialSeconds: item.durationInSeconds,
     onComplete: () => {
       setIsCompleted(true);

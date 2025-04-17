@@ -3,7 +3,7 @@ import { TrainingMenu } from '../types';
 import { TrainingMenuItem } from './TrainingMenuItem';
 import { useIntervalTimer } from '../hooks/useIntervalTimer';
 import { useLanguage } from '../context/LanguageContext';
-import { formatTime, formatTimeMMSS } from '../utils/timeFormatter';
+import { formatTime } from '../utils/timeFormatter';
 
 interface TrainingMenuRunnerProps {
   menu: TrainingMenu;
@@ -25,8 +25,6 @@ export const TrainingMenuRunner: React.FC<TrainingMenuRunnerProps> = ({ menu }) 
 
   // インターバルタイマー
   const { 
-    seconds: intervalSecondsRemaining, 
-    isRunning: isIntervalRunning, 
     start: startInterval, 
     formatTime: formatIntervalTime 
   } = useIntervalTimer({

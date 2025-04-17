@@ -14,7 +14,7 @@ enum AppView {
 
 export const TrainingApp: React.FC = () => {
   const { t } = useLanguage();
-  const { menus, addMenu, updateMenu, currentMenu, setCurrentMenu } = useTrainingMenu();
+  const { addMenu, updateMenu, currentMenu, setCurrentMenu } = useTrainingMenu();
   const [appView, setAppView] = useState<AppView>(AppView.List);
   const [editingMenu, setEditingMenu] = useState<TrainingMenu | undefined>(undefined);
 

@@ -2,7 +2,7 @@ import { useLanguage, Language } from '../context/LanguageContext';
 import { useState, useRef, useEffect } from 'react';
 
 export const LanguageSwitcher: React.FC = () => {
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 

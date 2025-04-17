@@ -1,4 +1,4 @@
-import { TrainingMenu, TrainingMenuItem } from '../types';
+import { TrainingMenu } from '../types';
 
 export const convertMenuToCSV = (menu: TrainingMenu): string => {
   const header = 'id,title,description,itemId,itemName,itemDescription,durationInSeconds\n';
