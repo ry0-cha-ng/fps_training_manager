@@ -65,7 +65,7 @@ export const TrainingMenuItem = forwardRef<
           {formatTime()}
         </div>
       </div>
-      <p style={{ margin: '5px 0 15px', fontSize: '0.9rem', color: '#aaa' }}>
+      <p style={{ margin: '5px 0 15px', fontSize: '0.9rem', color: '#aaa', textAlign: 'left' }}>
         {item.description}
       </p>
       {isActive && !isCompleted && (
