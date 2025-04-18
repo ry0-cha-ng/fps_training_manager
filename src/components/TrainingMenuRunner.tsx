@@ -114,7 +114,7 @@ export const TrainingMenuRunner: React.FC<TrainingMenuRunnerProps> = ({ menu }) 
             {menu.title}
           </h1>
         </div>
-        <p style={{ color: '#ddd', marginBottom: '15px' }}>{menu.description}</p>
+        <p style={{ color: '#ddd', marginBottom: '15px', textAlign: 'left' }}>{menu.description}</p>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
           <div style={{ color: '#aaa', fontSize: '0.9rem' }}>
             {t('totalMenuItems')}: {menu.items.length}
