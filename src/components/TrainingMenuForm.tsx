@@ -208,21 +208,6 @@ export const TrainingMenuForm: React.FC<TrainingMenuFormProps> = ({
             }}
           >
             <h3 style={{ color: '#ddd', margin: 0, fontSize: '1.5rem' }}>{t('menuItems')}</h3>
-            <button
-              type="button"
-              onClick={addItem}
-              style={{
-                backgroundColor: '#FF6267',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                padding: '12px 20px',
-                cursor: 'pointer',
-                fontSize: '1.1rem',
-              }}
-            >
-              {t('addItem')}
-            </button>
           </div>
 
           {items.map((item, index) => (
@@ -336,6 +321,25 @@ export const TrainingMenuForm: React.FC<TrainingMenuFormProps> = ({
               </div>
             </div>
           ))}
+
+          <div style={{ textAlign: 'center', marginTop: '20px' }}>
+            <button
+              type="button"
+              onClick={addItem}
+              style={{
+                backgroundColor: '#FF6267',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '12px 20px',
+                cursor: 'pointer',
+                fontSize: '1.1rem',
+                width: '100%',
+              }}
+            >
+              {t('addItem')}
+            </button>
+          </div>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
