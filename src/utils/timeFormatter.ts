@@ -6,7 +6,7 @@ import { Language } from '../context/LanguageContext';
  * @param language 言語設定
  * @returns フォーマットされた時間文字列
  */
-export const formatTime = (seconds: number, language: Language): string => {
+export const formatTime = (seconds: number, language: 'ja' | 'en' | 'ko'): string => {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const remainingSeconds = seconds % 60;

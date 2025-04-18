@@ -33,6 +33,7 @@ interface TrainingMenuContextType {
   updateMenu: (menu: TrainingMenu) => void;
   deleteMenu: (menuId: string) => void;
   setCurrentMenu: (menuId: string | null) => void;
+  updateMenuOrder: (newMenus: TrainingMenu[]) => void;
 }
 
 const TrainingMenuContext = createContext<TrainingMenuContextType | undefined>(
@@ -131,6 +132,10 @@ export const TrainingMenuProvider: React.FC<TrainingMenuProviderProps> = ({
     }
   };
 
+  const updateMenuOrder = (newMenus: TrainingMenu[]) => {
+    setMenus(newMenus);
+  };
+
   return (
     <TrainingMenuContext.Provider
       value={{
@@ -140,6 +145,7 @@ export const TrainingMenuProvider: React.FC<TrainingMenuProviderProps> = ({
         updateMenu,
         deleteMenu,
         setCurrentMenu,
+        updateMenuOrder,
       }}
     >
       {children}

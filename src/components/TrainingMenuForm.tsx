@@ -1,12 +1,208 @@
 import { useState } from 'react';
 import { TrainingMenu, TrainingMenuItem } from '../types';
 import { useLanguage } from '../context/LanguageContext';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface TrainingMenuFormProps {
   onSave: (menu: TrainingMenu) => void;
   existingMenu?: TrainingMenu;
   onCancel: () => void;
 }
+
+// SortableItemコンポーネントの定義
+const SortableItem = ({
+  item,
+  index,
+  removeItem,
+  handleItemNameChange,
+  handleItemDescriptionChange,
+  handleItemDurationChange,
+  secondsToMinutes,
+  t,
+}: {
+  item: TrainingMenuItem;
+  index: number;
+  removeItem: (index: number) => void;
+  handleItemNameChange: (index: number, e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleItemDescriptionChange: (index: number, e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  handleItemDurationChange: (index: number, e: React.ChangeEvent<HTMLInputElement>) => void;
+  secondsToMinutes: (seconds: number) => number;
+  t: (key: string) => string;
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    backgroundColor: '#11161C',
+    padding: '25px',
+    borderRadius: '8px',
+    marginBottom: '20px',
+    border: '1px solid #2a3740',
+    opacity: isDragging ? 0.5 : 1,
+    position: 'relative' as const,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div
+          {...attributes}
+          {...listeners}
+          style={{
+            cursor: 'move',
+            padding: '10px',
+            marginRight: '15px',
+            backgroundColor: '#2a3740',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            alignSelf: 'stretch',
+          }}
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M8 9H16M8 12H16M8 15H16"
+              stroke="#ddd"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
+        </div>
+        <div style={{ flexGrow: 1 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+            <h4 style={{ margin: 0, fontSize: '1.3rem' }}>{t('item')} {index + 1}</h4>
+            <button
+              type="button"
+              onClick={() => removeItem(index)}
+              style={{
+                backgroundColor: 'transparent',
+                color: '#FF6267',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '1rem',
+              }}
+            >
+              {t('delete')}
+            </button>
+          </div>
+
+          <div style={{ marginBottom: '20px' }}>
+            <label
+              style={{
+                display: 'block',
+                marginBottom: '10px',
+                fontSize: '1rem',
+              }}
+            >
+              {t('itemName')}
+            </label>
+            <input
+              type="text"
+              value={item.name}
+              onChange={(e) => handleItemNameChange(index, e)}
+              placeholder={t('itemNamePlaceholder')}
+              style={{
+                width: '100%',
+                padding: '12px',
+                backgroundColor: '#1a2025',
+                border: '1px solid #2a3740',
+                borderRadius: '6px',
+                color: 'white',
+                fontSize: '1.1rem',
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '20px' }}>
+            <label
+              style={{
+                display: 'block',
+                marginBottom: '10px',
+                fontSize: '1rem',
+              }}
+            >
+              {t('itemDescription')}
+            </label>
+            <textarea
+              value={item.description}
+              onChange={(e) => handleItemDescriptionChange(index, e)}
+              placeholder={t('itemDescriptionPlaceholder')}
+              rows={2}
+              style={{
+                width: '100%',
+                padding: '12px',
+                backgroundColor: '#1a2025',
+                border: '1px solid #2a3740',
+                borderRadius: '6px',
+                color: 'white',
+                resize: 'vertical',
+                fontSize: '1.1rem',
+              }}
+            />
+          </div>
+
+          <div>
+            <label
+              style={{
+                display: 'block',
+                marginBottom: '10px',
+                fontSize: '1rem',
+              }}
+            >
+              {t('itemDuration')}
+            </label>
+            <input
+              type="number"
+              min="1"
+              value={secondsToMinutes(item.durationInSeconds)}
+              onChange={(e) => handleItemDurationChange(index, e)}
+              style={{
+                width: '100%',
+                padding: '12px',
+                backgroundColor: '#1a2025',
+                border: '1px solid #2a3740',
+                borderRadius: '6px',
+                color: 'white',
+                fontSize: '1.1rem',
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const TrainingMenuForm: React.FC<TrainingMenuFormProps> = ({
   onSave,
@@ -116,6 +312,24 @@ export const TrainingMenuForm: React.FC<TrainingMenuFormProps> = ({
   // 分単位に変換
   const secondsToMinutes = (seconds: number) => Math.floor(seconds / 60);
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (over && active.id !== over.id) {
+      const oldIndex = items.findIndex((item) => item.id === active.id);
+      const newIndex = items.findIndex((item) => item.id === over.id);
+      
+      setItems(arrayMove(items, oldIndex, newIndex));
+    }
+  };
+
   return (
     <div style={{ maxWidth: 'var(--default-width)', margin: '0 auto', padding: '30px' }}>
       <form onSubmit={handleSubmit}>
@@ -210,117 +424,30 @@ export const TrainingMenuForm: React.FC<TrainingMenuFormProps> = ({
             <h3 style={{ color: '#ddd', margin: 0, fontSize: '1.5rem' }}>{t('menuItems')}</h3>
           </div>
 
-          {items.map((item, index) => (
-            <div
-              key={item.id}
-              style={{
-                backgroundColor: '#11161C',
-                padding: '25px',
-                borderRadius: '8px',
-                marginBottom: '20px',
-                border: '1px solid #2a3740',
-              }}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={items.map(item => item.id)}
+              strategy={verticalListSortingStrategy}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <h4 style={{ margin: '0 0 20px 0', fontSize: '1.3rem' }}>{t('item')} {index + 1}</h4>
-                <button
-                  type="button"
-                  onClick={() => removeItem(index)}
-                  style={{
-                    backgroundColor: 'transparent',
-                    color: '#FF6267',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontSize: '1rem',
-                  }}
-                >
-                  {t('delete')}
-                </button>
-              </div>
-
-              <div style={{ marginBottom: '20px' }}>
-                <label
-                  style={{
-                    display: 'block',
-                    marginBottom: '10px',
-                    fontSize: '1rem',
-                  }}
-                >
-                  {t('itemName')}
-                </label>
-                <input
-                  type="text"
-                  value={item.name}
-                  onChange={(e) => handleItemNameChange(index, e)}
-                  placeholder={t('itemNamePlaceholder')}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    backgroundColor: '#1a2025',
-                    border: '1px solid #2a3740',
-                    borderRadius: '6px',
-                    color: 'white',
-                    fontSize: '1.1rem',
-                  }}
+              {items.map((item, index) => (
+                <SortableItem
+                  key={item.id}
+                  item={item}
+                  index={index}
+                  removeItem={removeItem}
+                  handleItemNameChange={handleItemNameChange}
+                  handleItemDescriptionChange={handleItemDescriptionChange}
+                  handleItemDurationChange={handleItemDurationChange}
+                  secondsToMinutes={secondsToMinutes}
+                  t={t}
                 />
-              </div>
-
-              <div style={{ marginBottom: '20px' }}>
-                <label
-                  style={{
-                    display: 'block',
-                    marginBottom: '10px',
-                    fontSize: '1rem',
-                  }}
-                >
-                  {t('itemDescription')}
-                </label>
-                <textarea
-                  value={item.description}
-                  onChange={(e) => handleItemDescriptionChange(index, e)}
-                  placeholder={t('itemDescriptionPlaceholder')}
-                  rows={2}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    backgroundColor: '#1a2025',
-                    border: '1px solid #2a3740',
-                    borderRadius: '6px',
-                    color: 'white',
-                    resize: 'vertical',
-                    fontSize: '1.1rem',
-                  }}
-                />
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    display: 'block',
-                    marginBottom: '10px',
-                    fontSize: '1rem',
-                  }}
-                >
-                  {t('itemDuration')}
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={secondsToMinutes(item.durationInSeconds)}
-                  onChange={(e) => handleItemDurationChange(index, e)}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    backgroundColor: '#1a2025',
-                    border: '1px solid #2a3740',
-                    borderRadius: '6px',
-                    color: 'white',
-                    fontSize: '1.1rem',
-                  }}
-                />
-              </div>
-            </div>
-          ))}
+              ))}
+            </SortableContext>
+          </DndContext>
 
           <div style={{ textAlign: 'center', marginTop: '20px' }}>
             <button
