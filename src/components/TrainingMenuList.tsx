@@ -186,7 +186,7 @@ export const TrainingMenuList: React.FC<TrainingMenuListProps> = ({
   onSelectMenu,
   onNewMenu,
 }) => {
-  const { menus, currentMenu, deleteMenu, addMenu, updateMenuOrder } = useTrainingMenu();
+  const { menus, deleteMenu, addMenu, updateMenuOrder } = useTrainingMenu();
   const { language, t } = useLanguage();
   const [menuToDelete, setMenuToDelete] = useState<TrainingMenu | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);

@@ -1,5 +1,3 @@
-import { Language } from '../context/LanguageContext';
-
 /**
  * 秒数を時間、分、秒にフォーマットする関数
  * @param seconds 合計秒数
